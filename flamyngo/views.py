@@ -191,8 +191,30 @@ def get_data():
 @app.route('/<string:collection_name>/doc/<string:uid>')
 @requires_auth
 def get_doc(collection_name, uid):
+    settings = CSETTINGS[collection_name]
+
+    criteria = {
+        settings["unique_key"]: process(uid, settings["unique_key_type"])}
+
+    doc = DB[collection_name].find_one(criteria)
+    structure = doc['structure']
+    lattice = structure['lattice']
+
+    data = {}
+    data['formula'] = doc['formula_pretty']
+    data['a'] = '%.2f' % lattice['a']
+    data['b'] = '%.2f' % lattice['b']
+    data['c'] = '%.2f' % lattice['c']
+    data['spacegroup'] = doc['sg_symbol']
+
+    if doc['bandgap']:
+        type = 'direct' if doc['bandstructure']['is_gap_direct'] else 'indirect'
+        data['bandgap'] = '%.2f eV (%s)' % (doc['bandgap'], type)
+    else:
+        data['bandgap'] = '%.2f eV' % (doc['bandgap'])
+
     return make_response(render_template(
-        'doc.html', collection_name=collection_name, doc_id=uid)
+        'material.html', collection_name=collection_name, doc_id=uid, data=data)
     )
 
 

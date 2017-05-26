@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block title %}Doc{% endblock %}
+
+{% block top_javascript %}
+
+<script src="{{ url_for('static', filename='js/renderjson.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/3Dmol-nojquery-min.js')}}"></script>
+
+<script type="text/javascript">
+
+<!-- Render JSON -->
+$(function() {
+    $.get("/{{ collection_name }}/doc/{{doc_id}}/json", function( data ) {
+      document.getElementById("doc").appendChild(
+        renderjson.set_show_by_default(false)
+                  .set_show_to_level(0)
+                  .set_sort_objects(false)
+                  .set_icons('+', '-')
+                  .set_max_string_length()(data));
+    });
+
+  });
+</script>
+
+<!-- Visualize Structure -->
+<script>
+$(function() {
+  let element = $('#viewer');
+  let config = { backgroundColor: 'white' };
+  let viewer = $3Dmol.createViewer( element, config );
+  xyzUri = "{{url_for('static', filename='materials/')}}{{doc_id}}/structure.xyz"
+  jQuery.ajax( xyzUri, { 
+    success: function(data) {
+      let v = viewer;
+      v.addModel( data, "xyz" );
+      v.setStyle({}, {sphere: {radius: 0.5}, line: {linewidth: 2}});
+      v.zoomTo();
+      v.render();
+      v.zoom(2.0, 1000);
+    },
+    error: function(hdr, status, err) {
+      console.error( "Failed to load XYZ " + pdbXYZ + ": " + err );
+    },
+  });
+});
+</script>
+
+{% endblock %}
+
+{%  block css %}
+<link rel=stylesheet type=text/css
+          href="{{ url_for('static', filename='index.css') }}">
+    <style>
+      .renderjson a { text-decoration: none; }
+      .renderjson .disclosure { color: crimson;
+                                font-size: 150%; }
+      .renderjson .syntax { color: grey; }
+      .renderjson .string { color: darkred; }
+      .renderjson .number { color: darkcyan; }
+      .renderjson .boolean { color: blueviolet; }
+      .renderjson .key    { color: darkblue; }
+      .renderjson .keyword { color: blue; }
+      .renderjson .object.syntax { color: lightseagreen; }
+      .renderjson .array.syntax  { color: orange; }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<h2>Collection: {{collection_name}}, Doc: {{doc_id}}</h2>
+
+<div style="width: 40%; height: 80%; float: right" class="viewer_3Dmoljs" id="viewer"></div>
+
+<div style="float: left">
+<div>Formula: {{data.formula}}</div><br/>
+<div>a: {{data.a}} &#8491;</div>
+<div>b: {{data.b}} &#8491;</div>
+<div>c: {{data.c}} &#8491;</div><br/>
+<div>Spacegroup: {{data.spacegroup}}</div></br>
+<div>Bandgap: {{data.bandgap}}</div></br>
+
+<h4>Bandstructure</h4>
+<img style="width:600px" src="{{url_for('static', filename='materials/')}}{{doc_id}}/bandstructure.png"></img>
+
+<h4>Full document</h4>
+
+<div>RESTful link: <a href="{{request.url}}/json">{{request.url}}/json</a></div><br/>
+<div>Rendered JSON (click +/- to expand/collapse):</div>
+<div id="doc">
+</div>
+
+</div>
+
+{% endblock %}
