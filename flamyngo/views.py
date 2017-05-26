@@ -69,7 +69,7 @@ def process_search_string(search_string, settings):
     criteria = {}
     for regex in settings["query"]:
         if re.match(r'%s' % regex[1], search_string):
-            criteria[regex[0]] = process(search_string, regex[2])
+            criteria[regex[0]] = {'$regex' : process(search_string, regex[2])}
             break
     if not criteria:
         clean_search_string = search_string.strip()
