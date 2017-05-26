@@ -101,7 +101,12 @@ def query():
     mapped_names = None
     error_message = None
     try:
-        if search_string.strip() != "":
+        if True: #search_string.strip() != "":
+
+            # return everything if query is empty
+            if search_string.strip() == "":
+                search_string = "{}"
+
             criteria = process_search_string(search_string, settings)
             results = []
             for r in DB[cname].find(criteria, projection=projection):
