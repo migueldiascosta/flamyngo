@@ -69,7 +69,7 @@ def process_search_string(search_string, settings):
     criteria = {}
     for regex in settings["query"]:
         if re.match(r'%s' % regex[1], search_string):
-            criteria[regex[0]] = {'$regex' : process(search_string, regex[2])}
+            criteria[regex[0]] = {'$regex' : str(process(search_string, regex[2]))}
             break
     if not criteria:
         clean_search_string = search_string.strip()
@@ -87,6 +87,46 @@ def process_search_string(search_string, settings):
 @requires_auth
 def index():
     return make_response(render_template('index.html', collections=CNAMES))
+
+
+@app.route('/autocomplete', methods=['GET'])
+@requires_auth
+def autocomplete():
+    terms=[]
+    criteria={}
+
+    search_string = request.args.get('term')
+    cname = request.args.get("collection")
+
+    collection = DB[cname]
+    settings = CSETTINGS[cname]
+
+    # if search looks like a special query, autocomplete values
+    for regex in settings["query"]:
+        if re.match(r'%s' % regex[1], search_string):
+            criteria[regex[0]] = {'$regex' : str(process(search_string, regex[2]))}
+            projection = {regex[0]: 1}
+
+            results = collection.find(criteria, projection)
+            
+            if results:
+                terms = [ term[regex[0]] for term in results ]
+
+    # if search looks like a query dict, autocomplete keys
+    if not criteria and search_string[0:2] == '{"':
+        if search_string.count('"')%2 != 0:
+            splitted = search_string.split('"')
+            previous = splitted[:-1]
+            last = splitted[-1]
+
+            # get list of autocomplete keys from settings
+            # generic alternative: use a schema analizer like variety.js
+            results = _search_dict(settings["autocomplete_keys"], last)
+
+            if results:
+                terms = [ '"'.join(previous + [term]) + '":' for term in results ]
+
+    return jsonify(matching_results=jsanitize(list(set(terms))))
 
 
 @app.route('/query', methods=['GET'])
@@ -265,6 +305,18 @@ def _get_val(k, d, processing_func):
         # Return the base value if we cannot descend into the data.
         val = None
     return val
+
+
+def _search_dict(dictionary, substr):
+    result = []
+    for key in dictionary:
+        if substr.lower() in key.lower():
+            result.append(key)   
+    return result
+
+
+def num_to_id(num):
+    return "2dm-%s" % num
 
 
 if __name__ == "__main__":
