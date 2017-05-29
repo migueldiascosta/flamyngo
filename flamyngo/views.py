@@ -67,19 +67,27 @@ def get_mapped_name(settings, name):
 
 def process_search_string(search_string, settings):
     criteria = {}
+
+    friendly_query = settings["autocomplete_friendly_terms"].get(search_string, None)
+
+    if friendly_query:
+        search_string = json.dumps(friendly_query)
+
     for regex in settings["query"]:
         if re.match(r'%s' % regex[1], search_string):
-            criteria[regex[0]] = {'$regex' : str(process(search_string, regex[2]))}
+            criteria[regex[0]] = {'$regex': str(process(search_string, regex[2]))}
             break
+
     if not criteria:
         clean_search_string = search_string.strip()
         if clean_search_string[0] != "{" or \
-                        clean_search_string[-1] != "}":
+           clean_search_string[-1] != "}":
             clean_search_string = "{" + clean_search_string + "}"
         criteria = json.loads(clean_search_string)
 
         criteria = {get_mapped_name(settings, k): v
                     for k, v in criteria.items()}
+
     return criteria
 
 
@@ -92,8 +100,8 @@ def index():
 @app.route('/autocomplete', methods=['GET'])
 @requires_auth
 def autocomplete():
-    terms=[]
-    criteria={}
+    terms = []
+    criteria = {}
 
     search_string = request.args.get('term')
     cname = request.args.get("collection")
@@ -104,29 +112,44 @@ def autocomplete():
     # if search looks like a special query, autocomplete values
     for regex in settings["query"]:
         if re.match(r'%s' % regex[1], search_string):
-            criteria[regex[0]] = {'$regex' : str(process(search_string, regex[2]))}
+
+            regex_match = True
+
+            criteria[regex[0]] = {'$regex': str(process(search_string, regex[2]))}
             projection = {regex[0]: 1}
 
             results = collection.find(criteria, projection)
-            
+
             if results:
-                terms = [ term[regex[0]] for term in results ]
+                terms = [term[regex[0]] for term in results]
+
+            return jsonify(matching_results=jsanitize(list(set(terms))))
+
+    if search_string[0:2] != '{"':
+        results = _search_dict_keys(settings["autocomplete_friendly_terms"], search_string)
+
+        if results:
+            terms = results.keys()
+
+        return jsonify(matching_results=jsanitize(list(set(terms))))
 
     # if search looks like a query dict, autocomplete keys
-    if not criteria and search_string[0:2] == '{"':
-        if search_string.count('"')%2 != 0:
+    else:
+        if search_string.count('"') % 2 != 0:
             splitted = search_string.split('"')
             previous = splitted[:-1]
             last = splitted[-1]
 
             # get list of autocomplete keys from settings
             # generic alternative: use a schema analizer like variety.js
-            results = _search_dict(settings["autocomplete_keys"], last)
+            results = [key for key in settings["autocomplete_keys"] if last in key]
 
             if results:
-                terms = [ '"'.join(previous + [term]) + '":' for term in results ]
+                terms = ['"'.join(previous + [term]) + '":' for term in results]
 
-    return jsonify(matching_results=jsanitize(list(set(terms))))
+            return jsonify(matching_results=jsanitize(list(set(terms))))
+
+    return jsonify(matching_results=[])
 
 
 @app.route('/query', methods=['GET'])
@@ -141,7 +164,7 @@ def query():
     mapped_names = None
     error_message = None
     try:
-        if True: #search_string.strip() != "":
+        if True:  # search_string.strip() != "":
 
             # return everything if query is empty
             if search_string.strip() == "":
@@ -307,11 +330,19 @@ def _get_val(k, d, processing_func):
     return val
 
 
-def _search_dict(dictionary, substr):
-    result = []
-    for key in dictionary:
-        if substr.lower() in key.lower():
-            result.append(key)   
+def _search_dict_keys(dictionary, substr):
+    result = {}
+    for k, v in dictionary.iteritems():
+        if substr in k:
+            result[k] = v
+    return result
+
+
+def _search_dict_values(dictionary, substr):
+    result = {}
+    for k, v in dictionary.iteritems():
+        if substr in v:
+            result[k] = v
     return result
 
 
