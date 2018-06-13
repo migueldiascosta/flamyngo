@@ -54,7 +54,7 @@ $(function() {
 
 
 {% block content %}
-<h1>Query</h1>
+<h1>Under Development</h1>
 
 <form action="/query" method="get" name="query">
 <p>
@@ -94,7 +94,7 @@ $(function() {
     <tr>
         {% for f in fields %}
             {% if f == mapped_names[unique_key] %}
-                <td class="centered">
+                <td class="centered"">
                     <a target="_blank" href="/{{collection_name}}/doc/{{r[f]}}">{{r[f]|safe}}</a>
                 </td>
             {% else %}

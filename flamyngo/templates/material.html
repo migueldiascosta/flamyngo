@@ -36,9 +36,32 @@ $(function() {
       let v = viewer;
       v.addModel( data, "xyz" );
       v.setStyle({}, {sphere: {radius: 0.5}, line: {linewidth: 2}});
-      v.zoomTo();
+      v.addArrow({
+        start: {x:0.0, y:0.0, z:{{data.c}}/2},
+        end: {x:{{data.a}}, y:0.0, z:{{data.c}}/2},
+        radius: 0.1,
+      });
+      v.addLine({
+        start: {x:{{data.a}}, y:0.0, z:{{data.c}}/2},
+        end: {x:{{data.a}}, y:{{data.b}}, z:{{data.c}}/2},
+      });
+      v.addArrow({
+        start: {x:0.0, y:0.0, z:{{data.c}}/2},
+        end: {x:0.0, y:{{data.b}}, z:{{data.c}}/2},
+        radius: 0.1,
+      });
+      v.addLine({
+        start: {x:0.0, y:{{data.b}}, z:{{data.c}}/2},
+        end: {x:{{data.a}}, y:{{data.b}}, z:{{data.c}}/2},
+      });
+      v.zoomTo(); 
       v.render();
+<!--
       v.zoom(2.0, 1000);
+      v.rotate(180, "x", 10);
+      v.rotate(180, "y", 10);
+      v.rotate(180, "z", 10);
+-->
     },
     error: function(hdr, status, err) {
       console.error( "Failed to load XYZ " + pdbXYZ + ": " + err );
@@ -75,14 +98,32 @@ $(function() {
 
 <div style="float: left">
 <div>Formula: {{data.formula}}</div><br/>
+<div>Discovery Process: {{data.discovery_process}}</div>
+{% if data.parent %}
+<div>Exfoliated from: <a target="_blank" href="https://www.materialsproject.org/materials/{{data.parent}}">{{data.parent}}</a></div>
+<div>Exfoliation energy: {{data.exfoliation_energy}} meV/atom</a></div>
+<br/>
+{% endif %}
+{% if data.sibling %}
+<div>Obtained from: <a target="_blank" href="{{data.sibling}}">{{data.sibling}}</a></div>
+<br/>
+{% endif %}
 <div>a: {{data.a}} &#8491;</div>
-<div>b: {{data.b}} &#8491;</div>
-<div>c: {{data.c}} &#8491;</div><br/>
+<div>b: {{data.b}} &#8491;</div><br/>
+<div>(c: {{data.c}} &#8491;)</div><br/>
 <div>Spacegroup: {{data.spacegroup}}</div></br>
-<div>Bandgap: {{data.bandgap}}</div></br>
+<div>Bandgap: {{data.bandgap}} (PBE)</div></br>
 
+<!--
 <h4>Bandstructure</h4>
 <img style="width:600px" src="{{url_for('static', filename='materials/')}}{{doc_id}}/bandstructure.png"></img>
+
+<h4>Density of States</h4>
+<img style="width:600px" src="{{url_for('static', filename='materials/')}}{{doc_id}}/dos.png"></img>
+-->
+
+<h4>Bandstructure and Density of States</h4>
+<img style="width:600px" src="{{url_for('static', filename='materials/')}}{{doc_id}}/joint_bandstructure_dos.png"></img>
 
 <h4>Full document</h4>
 

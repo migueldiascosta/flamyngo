@@ -265,6 +265,18 @@ def get_doc(collection_name, uid):
 
     data = {}
     data['formula'] = doc['formula_pretty']
+    if doc['discovery_process'] == 'top-down':
+        data['discovery_process'] = 'Exfoliation from layered material'
+    elif doc['discovery_process'] == 'bottom-up':
+        data['discovery_process'] = 'Element substitution from 2d material'
+    else:
+        data['discovery_process'] = doc['discovery_process']
+    if 'parent_id' in doc.keys():
+        data['parent'] = doc['parent_id']
+    if 'exfoliation_energy_per_atom' in doc.keys():
+        data['exfoliation_energy'] = int(float(doc['exfoliation_energy_per_atom'])*1000)
+    if 'sibling_id' in doc.keys():
+        data['sibling'] = doc['sibling_id']
     data['a'] = '%.2f' % lattice['a']
     data['b'] = '%.2f' % lattice['b']
     data['c'] = '%.2f' % lattice['c']
@@ -290,6 +302,16 @@ def get_doc_json(collection_name, uid):
     doc = DB[collection_name].find_one(criteria)
     return jsonify(jsanitize(doc))
 
+@app.route('/<string:collection_name>/alldocs/json')
+@requires_auth
+def get_alldocs_json(collection_name):
+    settings = CSETTINGS[collection_name]
+    criteria = {}
+    docs = DB[collection_name].find(criteria)
+    results = []
+    for doc in docs:
+        results.append(doc)
+    return jsonify(jsanitize(results))
 
 def process(val, vtype):
     if vtype:
