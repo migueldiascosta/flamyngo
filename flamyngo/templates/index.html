@@ -37,6 +37,12 @@ $(function() {
     } );
   });
 </script>
+
+<script>
+  $( function() {
+    $( document ).tooltip();
+  } );
+</script>
 {% endblock %}
 
 {%  block css %}
@@ -71,6 +77,7 @@ $(function() {
 <p id="query">
 <input type="text" name="search_string" id="query-input"
                placeholder="Type query..." size="50"
+               title="Query examples: 'top-down', 'bottom-up', 'MoS2', mongo-like dict query"
        value="{{search_string}}"></p>
 <p>
 <input type="submit" name="submit" value="Search">
