@@ -1,6 +1,8 @@
 body {
     font-family: "Arial","sans-serif";
     font-size: 1.1em;
+    margin-left: -10px;
+    margin-top: -10px;
 }
 
 p.message {
@@ -21,8 +23,8 @@ h1, h2 {
 
 
 #navbar{
-    position: fixed;
-    margin: -10px -10px 0px -10px;
+    min-width: 100%;
+    margin: 0;
     background-color: #fefefe;
     /* Safari 4-5, Chrome 1-9 */
     background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#eee), to(#efefef));
@@ -39,9 +41,11 @@ h1, h2 {
 
     z-index: 1030;
     width: 100%;
+    /*
     -webkit-box-shadow: 0 1px 5px rgba(0,0,0,.1);
     -moz-box-shadow: 0 1px 5px rgba(0,0,0,.1);
     box-shadow: 0 1px 5px rgba(0,0,0,.1);
+    */
 }
 
 #navbar-inner{
@@ -101,5 +105,25 @@ h1, h2 {
     margin-right: auto;
     margin-left: auto;
     padding-top: 40px;
-    font-size: 1.1em;
+    padding-bottom: 50px;
+    font-size: 1em;
 }
+
+#header{
+    min-width: 100%;
+    font-size: 3em;
+    background-color: #222222;
+    color: white;
+    padding: 50px 0 50px 50px;
+}
+
+#footer{
+    min-width: 100%;
+    position: fixed;
+    font-size: 1em;
+    background-color: #222222;
+    color: white;
+    bottom:0;
+    padding: 10px 0px 10px 20px;
+}
+    
