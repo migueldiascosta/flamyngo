@@ -1,0 +1,44 @@
+{% extends "layout.html" %} {% block title %}{{db_name}} Query{% endblock %} {% block top_javascript %}
+
+<script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.2.1/js/buttons.flash.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+<script src="//cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+<script src="//cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
+<script src="//cdn.datatables.net/buttons/1.2.1/js/buttons.html5.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.2.1/js/buttons.print.min.js"></script>
+<script src="//code.highcharts.com/highcharts.js"></script>
+<script src="//code.highcharts.com/modules/exporting.js"></script>
+
+{% endblock %} {% block css %}
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='index.css') }}">
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='guide.css') }}"> 
+{% endblock %} {% block content %}
+<h1>About</h1>
+
+This database was produced by <a href="http://2dmaterials.nus.edu.sg/feng">Prof. Yuan Ping Feng's group</a> at the <a href="http://graphene.nus.edu.sg">Centre for Advanced 2D Materials (CA2DM)</a>, <a href="http://nus.edu.sg">National University of Singapore (NUS)</a>, in particular by 
+<ul>
+<li>Dr. Jun Zhou, CA2DM, NUS</li>
+</ul>
+with technical support from 
+<ul>
+</li>Dr. Miguel Dias Costa, CA2DM, NUS</li>
+</ul>
+
+The work relies heavily on the <a href="https://materialsproject.org/">Materials Project</a> database and associated tools such as 
+<ul>
+<li><a href="http://pymatgen.org">Pymatgen</a></li>
+<li><a href="https://materialsproject.github.io/fireworks/">Fireworks</a></li>
+<li><a href="https://atomate.org/">Atomate</a></li>
+</ul>
+
+Similar databases produced by other groups include
+<ul>
+<li><a href="http://materialsweb.org">Materials Web</a></li>
+<li><a href="http://materialscloud.org">Materials Cloud</a></li>
+<li><a href="https://cmr.fysik.dtu.dk/c2db/c2db.html#c2db">Computational 2D Materials Database</a></li>
+</ul>
+
+{% if error_message %}
+<h2>{{ error_message }}</h2> {% endif %} {% endblock %}

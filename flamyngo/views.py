@@ -228,6 +228,11 @@ def plot():
 def guide():
     return make_response(render_template('guide.html', collections=CNAMES))
 
+@app.route('/about', methods=['GET'])
+@requires_auth
+def about():
+    return make_response(render_template('about.html', collections=CNAMES))
+
 @app.route('/data', methods=['GET'])
 @requires_auth
 def get_data():
