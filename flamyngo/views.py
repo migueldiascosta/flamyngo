@@ -223,6 +223,10 @@ def plot():
         plot=True)
     )
 
+@app.route('/guide', methods=['GET'])
+@requires_auth
+def guide():
+    return make_response(render_template('guide.html', collections=CNAMES))
 
 @app.route('/data', methods=['GET'])
 @requires_auth
