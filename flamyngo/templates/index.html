@@ -43,6 +43,14 @@ $(function() {
     $( document ).tooltip();
   } );
 </script>
+
+<script>
+  $( function() {
+    $("#top-down").click(function () { window.location = "/query?collection=2dmaterials&search_string=top-down"; });
+    $("#bottom-up").click(function () { window.location = "/query?collection=2dmaterials&search_string=bottom-up"; });
+} );
+</script>
+  
 {% endblock %}
 
 {%  block css %}
@@ -60,7 +68,6 @@ $(function() {
 
 
 {% block content %}
-<h1>Under Development</h1>
 
 <form action="/query" method="get" name="query">
 <p>
@@ -84,6 +91,13 @@ $(function() {
 </p>
 </form>
 
+<p>Click below to list all "top-down" or "bottom-up" materials (see calculations guide for details)</p>
+<p>
+<button class="ui-button ui-widget ui-state-default ui-corner-all ui-state-hover" style="color: #555555; padding: 6px; border: 1px solid #d3d3d3;" id="top-down">top-down</button>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<button class="ui-button ui-widget ui-state-default ui-corner-all ui-state-hover" style="color: #555555; padding: 6px; border: 1px solid #d3d3d3;" id="bottom-up">bottom-up</button>
+</p>
+
 {% if results %}
 
 <h1>Results</h1>
@@ -101,7 +115,7 @@ $(function() {
     <tr>
         {% for f in fields %}
             {% if f == mapped_names[unique_key] %}
-                <td class="centered"">
+                <td class="centered">
                     <a target="_blank" href="/{{collection_name}}/doc/{{r[f]}}">{{r[f]|safe}}</a>
                 </td>
             {% else %}
