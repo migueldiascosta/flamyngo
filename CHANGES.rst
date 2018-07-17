@@ -1,6 +1,18 @@
 Change log
 ==========
 
+v0.9.9
+------
+* Add unique_ids for REST API.
+
+v0.9.7
+------
+* Support the use of API keys as auth.
+
+v0.9.6
+------
+* Support repeated use of same field.
+
 v0.9.2
 ------
 * Minor improvements in UI.
