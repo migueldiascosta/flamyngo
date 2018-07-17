@@ -120,10 +120,15 @@ h1, h2 {
 #footer{
     min-width: 100%;
     position: fixed;
-    font-size: 1em;
     background-color: #222222;
     color: white;
     bottom:0;
     padding: 10px 0px 10px 20px;
+    font-decoration: none;
+    font-size: 0.8em;
+}
+
+#footer a {
+    color: white;
 }
     
