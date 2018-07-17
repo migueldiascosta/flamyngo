@@ -24,10 +24,12 @@ CONN = MongoClient(SETTINGS["db"]["host"], SETTINGS["db"]["port"],
 DB = CONN[SETTINGS["db"]["database"]]
 if "username" in SETTINGS["db"]:
     DB.authenticate(SETTINGS["db"]["username"], SETTINGS["db"]["password"])
+HELPTXT = SETTINGS.get("help", "")
 CNAMES = [d["name"] for d in SETTINGS["collections"]]
 CSETTINGS = {d["name"]: d for d in SETTINGS["collections"]}
 AUTH_USER = SETTINGS.get("AUTH_USER", None)
 AUTH_PASSWD = SETTINGS.get("AUTH_PASSWD", None)
+API_KEY = SETTINGS.get("API_KEY", None)
 
 
 def check_auth(username, password):
@@ -52,6 +54,9 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         auth = request.authorization
+        api_key = request.headers.get("API_KEY") or request.args.get("API_KEY")
+        if (API_KEY is not None) and api_key == API_KEY:
+            return f(*args, **kwargs)
         if (AUTH_USER is not None) and (not auth or not check_auth(
                 auth.username, auth.password)):
             return authenticate()
@@ -94,7 +99,8 @@ def process_search_string(search_string, settings):
 @app.route('/', methods=['GET'])
 @requires_auth
 def index():
-    return make_response(render_template('index.html', collections=CNAMES))
+    return make_response(render_template('index.html', collections=CNAMES,
+                                         helptext=HELPTXT))
 
 
 @app.route('/autocomplete', methods=['GET'])
@@ -173,7 +179,7 @@ def query():
             criteria = process_search_string(search_string, settings)
             results = []
             for r in DB[cname].find(criteria, projection=projection):
-                processed = {}
+                processed = []
                 mapped_names = {}
                 fields = []
                 for m in settings["summary"]:
@@ -185,7 +191,7 @@ def query():
                     val = _get_val(k, r, v.strip())
                     val = val if val is not None else ""
                     mapped_names[k] = mapped_k
-                    processed[mapped_k] = val
+                    processed.append(val)
                     fields.append(mapped_k)
                 results.append(processed)
             if not results:
@@ -260,6 +266,14 @@ def get_data():
     return jsonify(jsanitize(data))
 
 
+@app.route('/<string:collection_name>/unique_ids')
+@requires_auth
+def get_ids(collection_name):
+    settings = CSETTINGS[collection_name]
+    doc = DB[collection_name].distinct(settings["unique_key"])
+    return jsonify(jsanitize(doc))
+
+
 @app.route('/<string:collection_name>/doc/<string:uid>')
 @requires_auth
 def get_doc(collection_name, uid):
@@ -300,6 +314,16 @@ def get_doc(collection_name, uid):
     return make_response(render_template(
         'material.html', collection_name=collection_name, doc_id=uid, data=data)
     )
+
+
+@app.route('/<string:collection_name>/doc/<string:uid>/<string:field>')
+@requires_auth
+def get_doc_field(collection_name, uid, field):
+    settings = CSETTINGS[collection_name]
+    criteria = {
+        settings["unique_key"]: process(uid, settings["unique_key_type"])}
+    doc = DB[collection_name].find_one(criteria, projection=[field])
+    return Response(str(doc[field]), mimetype='text/plain')
 
 
 @app.route('/<string:collection_name>/doc/<string:uid>/json')

@@ -27,6 +27,9 @@ A sample commented configuration yaml file is given below. You can start from
 the one below and customize it to suit your needs.
 
 ```yaml
+# Provide some help text (html format) for the query.
+help: "Supported queries: last name (string)"
+
 # MongoDB settings
 db:
   host: mongo.host.com
@@ -83,6 +86,7 @@ collections:
 # used for a basic setup. For high security, look into proper implementations.
 AUTH_USER: Iam
 AUTH_PASSWD: Pink
+API_KEY: IamPink
 ```
 
 # URLs
@@ -93,8 +97,8 @@ landing page will be at http://localhost:5000.
 Pages for individual docs following the format 
 http://localhost:5000/[collection_name]/doc/[unique_id].
 
-A RESTful link for downloading individual docs as a json response is 
-given as http://localhost:5000/[collection_name]/doc/[unique_id]/json.
+# REST API
 
-
-
+* Getting all unique ids for a collection: http://localhost:5000/[collection_name]/unique_ids
+* Getting individual docs as a json response: http://localhost:5000/[collection_name]/doc/[unique_id]/json.
+* Getting a field of an individual doc as a plain text response: http://localhost:5000/[collection_name]/doc/[unique_id]/<field>.

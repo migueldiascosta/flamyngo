@@ -86,10 +86,12 @@ $(function() {
                placeholder="Type query..." size="50"
                title="Query examples: 'top-down', 'bottom-up', 'MoS2', mongo-like dict query"
        value="{{search_string}}"></p>
+<p id="helptext">{{ helptext | safe }}</p>
 <p>
 <input type="submit" name="submit" value="Search">
 </p>
 </form>
+
 
 <p>Click below to list all "top-down" or "bottom-up" materials (see calculations guide for details)</p>
 <p>
@@ -116,10 +118,10 @@ $(function() {
         {% for f in fields %}
             {% if f == mapped_names[unique_key] %}
                 <td class="centered">
-                    <a target="_blank" href="/{{collection_name}}/doc/{{r[f]}}">{{r[f]|safe}}</a>
+                    <a target="_blank" href="/{{collection_name}}/doc/{{r[loop.index0]}}">{{r[loop.index0]|safe}}</a>
                 </td>
             {% else %}
-                <td class="centered">{{r[f]|safe}}</td>
+                <td class="centered">{{r[loop.index0]|safe}}</td>
             {% endif %}
         {% endfor %}
     </tr>

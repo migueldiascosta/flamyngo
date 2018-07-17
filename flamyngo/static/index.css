@@ -21,6 +21,7 @@ input{
 	font-size: 1.2em;
 }
 
+
 select{
     width: 300px;
 }
@@ -33,6 +34,13 @@ p{
 	font-size: 1.3em;
 }
 
+
 td.centered {
     text-align: center;
 }
+
+#helptext{
+	margin: auto;
+	font-size: 0.8em;
+}
+
