@@ -15,6 +15,8 @@ from flamyngo.app import app
 from functools import wraps
 from flask import request, Response
 
+from bson.son import SON
+
 module_path = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -233,6 +235,30 @@ def plot():
 @requires_auth
 def guide():
     return make_response(render_template('guide.html', collections=CNAMES))
+
+@app.route('/summary', methods=['GET'])
+@requires_auth
+def summary():
+    cname = "2dmaterials"
+    
+    stats={}
+    stats['total'] = DB[cname].find({}).count()
+    stats['total_td'] = DB[cname].find({'discovery_process': 'top-down'}).count()
+    stats['total_bu'] = DB[cname].find({'discovery_process': 'bottom-up'}).count()
+
+    pipeline = [
+         {"$unwind": "$nelements"},
+         {"$group": {"_id": "$nelements", "count": {"$sum": 1}}},
+         {"$sort": SON([("_id", 1)])}
+    ]
+    nelements = DB.command('aggregate', cname, pipeline=pipeline)['result']
+    stats['nelements'] = [{ d['_id']: d['count']} for d in nelements ]
+    
+    pipeline = [{"$bucket": {"boundaries": [0,0.001,2,10], "groupBy": "$bandgap", "default": -1}}]
+    stats['bandgaps'] = DB.command('aggregate', cname, pipeline=pipeline)['result']
+   
+    return make_response(render_template(
+        'summary.html', active_collection=cname, collections=CNAMES, stats=stats))
 
 @app.route('/about', methods=['GET'])
 @requires_auth

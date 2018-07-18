@@ -1,0 +1,50 @@
+{% extends "layout.html" %} {% block title %}{{db_name}} Query{% endblock %} {% block top_javascript %}
+
+<script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.2.1/js/buttons.flash.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+<script src="//cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+<script src="//cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
+<script src="//cdn.datatables.net/buttons/1.2.1/js/buttons.html5.min.js"></script>
+<script src="//cdn.datatables.net/buttons/1.2.1/js/buttons.print.min.js"></script>
+<script src="//code.highcharts.com/highcharts.js"></script>
+<script src="//code.highcharts.com/modules/exporting.js"></script>
+
+{% endblock %} {% block css %}
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='index.css') }}">
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='plot.css') }}"> {% endblock %} {% block content %}
+
+<h1>Summary</h1>
+
+This database contains {{stats['total']}} materials, of which
+<ul>
+<li>{{stats['total_td']}} were obtained by exfoliation of existing layered materials ("top-down" approach) and</li>
+<li>{{stats['total_bu']}} were obtained by chemical substituion from 2D materials ("bottom-up" approach).</li>
+</ul>
+
+There are
+<ul>
+{% for dict_item in stats['nelements'] %}
+   {% for key, value in dict_item.items() %}
+      <li>{{value}} materials with {{key}} element{% if key > 1 %}s{% endif %}</li>
+   {% endfor %}
+{% endfor %}
+</ul>
+
+Number of materials by bandgap range:
+<ul>
+{% for d in stats['bandgaps'] %}
+   {% if d['_id'] == 0 %}
+      <li>{{d['count']}} materials with bandgap <= 0.001 eV</li>
+   {% elif d['_id'] == 0.001 %}
+      <li>{{d['count']}} materials with bandgap > 0.001 eV and <= 2 eV</li>
+   {% elif d['_id'] == 2 %}
+        <li>{{d['count']}} materials with bandgap > 2 eV</li>
+   {% endif %}
+{% endfor %}
+</ul>
+
+
+{% if error_message %}
+<h2>{{ error_message }}</h2> {% endif %} {% endblock %}
